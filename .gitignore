@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 data/transfermarkt.duckdb
 .streamlit/secrets.toml
+app_v1_backup.py
