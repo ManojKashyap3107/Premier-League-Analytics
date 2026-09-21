@@ -1,3 +1,6 @@
+🚀 **[Live Demo](https://premier-league-analytics-vadmjhfwbgn3ceuzj5vjkj.streamlit.app/)**
+
+[![Open Live Demo](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://premier-league-analytics-vadmjhfwbgn3ceuzj5vjkj.streamlit.app/)
 \# ⚽ Premier League Analytics Lab
 
 
