@@ -1571,14 +1571,18 @@ def clubs_page():
 
     st.markdown(
         '<div class="section-subtitle">'
-        'Browse all clubs in the 2024/25 dataset'
+        'Explore clubs, squad sizes and market values from the 2024/25 dataset'
         '</div>',
         unsafe_allow_html=True
     )
 
+    # ========================================================
+    # SEARCH
+    # ========================================================
+
     search = st.text_input(
         "Search clubs",
-        placeholder="Search Manchester, Arsenal, Liverpool..."
+        placeholder="Search Arsenal, Liverpool, Manchester..."
     )
 
     clubs = sorted(
@@ -1592,9 +1596,35 @@ def clubs_page():
         clubs = [
             club
             for club in clubs
-            if search.lower()
-            in club.lower()
+            if search.lower() in club.lower()
         ]
+
+    st.write("")
+
+    if not clubs:
+
+        st.info(
+            "No clubs found. Try another search."
+        )
+
+        return
+
+    st.markdown(
+        f"""
+        <div style="
+            color:#7f8b9e;
+            font-size:13px;
+            margin-bottom:18px;
+        ">
+            Showing <strong>{len(clubs)}</strong> clubs
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # ========================================================
+    # CLUB GRID
+    # ========================================================
 
     for start in range(
         0,
@@ -1632,57 +1662,135 @@ def clubs_page():
                 logo
             )
 
+            if logo_data:
+
+                logo_html = f"""
+                <img
+                    src="{logo_data}"
+                    alt="{club}"
+                    style="
+                        width:82px;
+                        height:82px;
+                        object-fit:contain;
+                        display:block;
+                        margin:0 auto 18px auto;
+                    "
+                >
+                """
+
+            else:
+
+                logo_html = """
+                <div style="
+                    width:82px;
+                    height:82px;
+                    margin:0 auto 18px auto;
+                    border-radius:50%;
+                    background:#111827;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    font-size:38px;
+                ">
+                    ⚽
+                </div>
+                """
+
+            short_name = info.get(
+                "short_name",
+                club
+            )
+
+            code = info.get(
+                "code",
+                ""
+            )
+
             with col:
-
-                if logo_data:
-
-                    logo_html = f"""
-                    <img
-                        class="club-logo"
-                        src="{logo_data}"
-                        alt="{club}"
-                    >
-                    """
-
-                else:
-
-                    logo_html = """
-                    <div style="
-                        height:72px;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                        font-size:50px;
-                    ">
-                        ⚽
-                    </div>
-                    """
 
                 html(
                     f"""
-                    <div class="club-card">
+                    <div style="
+                        min-height:260px;
+                        padding:24px 18px;
+                        margin-bottom:12px;
+                        border-radius:22px;
+                        background:
+                            linear-gradient(
+                                145deg,
+                                rgba(255,255,255,0.055),
+                                rgba(255,255,255,0.018)
+                            );
+                        border:1px solid
+                            rgba(255,255,255,0.08);
+                        text-align:center;
+                        transition:0.2s ease;
+                    ">
 
                         {logo_html}
 
-                        <div class="club-name">
-                            {info.get(
-                                'short_name',
-                                club
-                            )}
+                        <div style="
+                            font-size:19px;
+                            font-weight:850;
+                            color:#f5f7fb;
+                            line-height:1.2;
+                        ">
+                            {short_name}
                         </div>
 
-                        <div class="club-code">
-                            {info.get(
-                                'code',
-                                ''
-                            )}
+                        <div style="
+                            margin-top:5px;
+                            color:#737f92;
+                            font-size:11px;
+                            font-weight:700;
+                            letter-spacing:1.5px;
+                            text-transform:uppercase;
+                        ">
+                            {code}
                         </div>
 
-                        <div class="club-meta">
-                            {len(club_df)}
-                            players
-                            ·
-                            {money(club_value)}
+                        <div style="
+                            margin-top:20px;
+                            padding-top:16px;
+                            border-top:1px solid
+                                rgba(255,255,255,0.07);
+                        ">
+
+                            <div style="
+                                color:#7f8b9e;
+                                font-size:11px;
+                                text-transform:uppercase;
+                                letter-spacing:1px;
+                            ">
+                                Squad
+                            </div>
+
+                            <div style="
+                                margin-top:4px;
+                                color:#f1f4f8;
+                                font-size:18px;
+                                font-weight:800;
+                            ">
+                                {len(club_df)} players
+                            </div>
+
+                            <div style="
+                                margin-top:9px;
+                                color:#aab4c4;
+                                font-size:13px;
+                            ">
+                                Squad value
+                            </div>
+
+                            <div style="
+                                margin-top:2px;
+                                color:#ffffff;
+                                font-size:16px;
+                                font-weight:800;
+                            ">
+                                {money(club_value)}
+                            </div>
+
                         </div>
 
                     </div>
@@ -1700,7 +1808,6 @@ def clubs_page():
                         selected_club=club
                     )
 
-
 # ============================================================
 # CLUB PAGE
 # ============================================================
@@ -1712,18 +1819,12 @@ def club_page(club):
         or club not in df["club"].unique()
     ):
 
-        st.error(
-            "Club not found."
-        )
+        st.error("Club not found.")
 
-        if st.button(
-            "Back to Clubs"
-        ):
-
+        if st.button("Back to Clubs"):
             navigate("Clubs")
 
         return
-
 
     info = club_info(club)
 
@@ -1736,86 +1837,146 @@ def club_page(club):
         .reset_index(drop=True)
     )
 
-    total_value = club_df[
-        "market_value"
-    ].sum()
+    total_value = club_df["market_value"].sum()
 
-    avg_age = club_df[
-        "age"
-    ].mean()
+    avg_age = club_df["age"].mean()
 
     top_player = club_df.iloc[0]["name"]
 
-    logo = info.get(
-        "logo",
-        ""
-    )
+    top_value = club_df.iloc[0]["market_value"]
 
-    logo_data = get_logo_data(
-        logo
-    )
+    logo = info.get("logo", "")
 
+    logo_data = get_logo_data(logo)
 
-    if st.button(
-        "← Back to Clubs"
-    ):
+    # ========================================================
+    # BACK BUTTON
+    # ========================================================
+
+    if st.button("← Back to Clubs"):
 
         navigate("Clubs")
 
+    # ========================================================
+    # CLUB HERO
+    # ========================================================
 
     if logo_data:
 
         logo_html = f"""
         <img
-            class="club-logo-large"
             src="{logo_data}"
             alt="{club}"
+            style="
+                width:120px;
+                height:120px;
+                object-fit:contain;
+                flex-shrink:0;
+            "
         >
         """
 
     else:
 
         logo_html = """
-        <div
-            class="club-logo-large"
-            style="
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                font-size:70px;
-            "
-        >
+        <div style="
+            width:120px;
+            height:120px;
+            border-radius:24px;
+            background:#111827;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:55px;
+            flex-shrink:0;
+        ">
             ⚽
         </div>
         """
 
-    color = info.get(
+    club_color = info.get(
         "color",
         "#7c3aed"
     )
 
     html(
         f"""
-        <div
-            class="club-hero"
-            style="--club-color:{color};"
-        >
+        <div style="
+            position:relative;
+            overflow:hidden;
+            padding:34px;
+            border-radius:28px;
+            background:
+                radial-gradient(
+                    circle at 85% 15%,
+                    {club_color}55,
+                    transparent 38%
+                ),
+                linear-gradient(
+                    135deg,
+                    #101827,
+                    #0c1320
+                );
+            border:1px solid rgba(255,255,255,0.08);
+        ">
 
-            {logo_html}
+            <div style="
+                display:flex;
+                align-items:center;
+                gap:28px;
+                flex-wrap:wrap;
+            ">
 
-            <div>
+                {logo_html}
 
-                <div class="club-kicker">
-                    Premier League · 2024/25
-                </div>
+                <div>
 
-                <div class="club-title">
-                    {club}
-                </div>
+                    <div style="
+                        color:#7f8b9e;
+                        font-size:11px;
+                        font-weight:800;
+                        letter-spacing:2px;
+                        text-transform:uppercase;
+                        margin-bottom:8px;
+                    ">
+                        PREMIER LEAGUE · 2024/25
+                    </div>
 
-                <div class="club-description">
-                    Squad analytics, player values
-                    and performance data
+                    <div style="
+                        color:#ffffff;
+                        font-size:42px;
+                        font-weight:900;
+                        letter-spacing:-1.5px;
+                        line-height:1.05;
+                    ">
+                        {club}
+                    </div>
+
+                    <div style="
+                        margin-top:12px;
+                        color:#aab4c4;
+                        font-size:15px;
+                    ">
+                        {info.get(
+                            'short_name',
+                            club
+                        )}
+                        &nbsp;·&nbsp;
+                        {info.get(
+                            'code',
+                            ''
+                        )}
+                    </div>
+
+                    <div style="
+                        margin-top:12px;
+                        color:#7f8b9e;
+                        font-size:13px;
+                    ">
+                        Squad analytics, player values
+                        and performance data
+                    </div>
+
                 </div>
 
             </div>
@@ -1824,10 +1985,23 @@ def club_page(club):
         """
     )
 
+    # ========================================================
+    # CLUB OVERVIEW
+    # ========================================================
 
-    # CLUB KPIs
+    st.markdown(
+        '<div class="section-title">'
+        'Club Overview'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-    st.write("")
+    st.markdown(
+        '<div class="section-subtitle">'
+        'A quick snapshot of the squad and its market profile'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     c1, c2, c3, c4 = st.columns(4)
 
@@ -1908,9 +2082,7 @@ def club_page(club):
                 </div>
 
                 <div class="kpi-value">
-                    {money(
-                        club_df.iloc[0]["market_value"]
-                    )}
+                    {money(top_value)}
                 </div>
 
                 <div class="kpi-small">
@@ -1921,8 +2093,130 @@ def club_page(club):
             """
         )
 
+    # ========================================================
+    # TOP PLAYER
+    # ========================================================
 
+    st.markdown(
+        '<div class="section-title">'
+        'Squad Leader'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    leader_photo = get_photo(
+        club_df.iloc[0]
+    )
+
+    if leader_photo:
+
+        leader_photo_html = f"""
+        <img
+            src="{leader_photo}"
+            alt="{top_player}"
+            style="
+                width:110px;
+                height:130px;
+                object-fit:contain;
+                border-radius:18px;
+                background:#111827;
+            "
+        >
+        """
+
+    else:
+
+        leader_photo_html = """
+        <div style="
+            width:110px;
+            height:130px;
+            border-radius:18px;
+            background:#111827;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:48px;
+        ">
+            ⚽
+        </div>
+        """
+
+    leader_row = club_df.iloc[0]
+
+    html(
+        f"""
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:22px;
+            padding:22px;
+            border-radius:22px;
+            background:rgba(255,255,255,0.035);
+            border:1px solid rgba(255,255,255,0.07);
+        ">
+
+            {leader_photo_html}
+
+            <div>
+
+                <div style="
+                    color:#7f8b9e;
+                    font-size:11px;
+                    font-weight:800;
+                    letter-spacing:1.5px;
+                    text-transform:uppercase;
+                ">
+                    Highest listed market value
+                </div>
+
+                <div style="
+                    margin-top:7px;
+                    color:#ffffff;
+                    font-size:27px;
+                    font-weight:900;
+                ">
+                    {top_player}
+                </div>
+
+                <div style="
+                    margin-top:6px;
+                    color:#9aa6b8;
+                    font-size:14px;
+                ">
+                    {leader_row.get(
+                        'position',
+                        'Player'
+                    )}
+                    &nbsp;·&nbsp;
+                    {int(
+                        leader_row['appearances']
+                    )}
+                    appearances
+                    &nbsp;·&nbsp;
+                    {int(
+                        leader_row['goals']
+                    )}
+                    goals
+                </div>
+
+                <div style="
+                    margin-top:12px;
+                    color:#ffffff;
+                    font-size:22px;
+                    font-weight:850;
+                ">
+                    {money(top_value)}
+                </div>
+
+            </div>
+
+        </div>
+        """
+    )
+
+    # ========================================================
     # SQUAD
+    # ========================================================
 
     st.markdown(
         '<div class="section-title">'
@@ -1933,7 +2227,7 @@ def club_page(club):
 
     st.markdown(
         '<div class="section-subtitle">'
-        'Players sorted by listed market value'
+        'Players ranked by listed market value'
         '</div>',
         unsafe_allow_html=True
     )
@@ -2030,7 +2324,6 @@ def club_page(club):
                         "Player",
                         selected_player=row["name"]
                     )
-
 
 # ============================================================
 # PLAYERS PAGE
