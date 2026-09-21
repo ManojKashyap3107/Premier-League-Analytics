@@ -901,8 +901,12 @@ div[data-baseweb="select"] > div {
 # NAVIGATION
 # ============================================================
 
-nav1, nav2, nav3, nav4, nav5 = st.columns(
-    [3.3, 1, 1, 1, 1]
+# ============================================================
+# NAVIGATION
+# ============================================================
+
+nav1, nav2, nav3, nav4, nav5, nav6 = st.columns(
+    [3.0, 1, 1, 1, 1, 1]
 )
 
 with nav1:
@@ -962,11 +966,25 @@ with nav4:
 with nav5:
 
     if st.button(
-        "Model",
+        "Analytics",
         use_container_width=True
     ):
         navigate("Model")
 
+with nav6:
+
+    if st.button(
+        "Community",
+        use_container_width=True
+    ):
+        st.info(
+            "Fan Community is coming soon."
+        )
+
+
+# ============================================================
+# HOME
+# ============================================================
 
 # ============================================================
 # HOME
@@ -986,15 +1004,16 @@ def home_page():
         df["market_value"].idxmax()
     ]["name"]
 
-
+    # ========================================================
     # HERO
+    # ========================================================
 
     html(
         """
         <div class="hero">
 
             <div class="hero-kicker">
-                2024/25 Premier League Dataset
+                PREMIER LEAGUE ANALYTICS LAB
             </div>
 
             <h1>
@@ -1003,17 +1022,54 @@ def home_page():
             </h1>
 
             <p>
-                Explore Premier League players, clubs, performance,
-                market values and machine-learning estimates through
-                one interactive football analytics platform.
+                Explore players, clubs, performance, market values
+                and machine-learning insights through one football
+                analytics platform.
             </p>
 
         </div>
         """
     )
 
+    # ========================================================
+    # QUICK ACTIONS
+    # ========================================================
 
-    # KPIs
+    action1, action2, action3 = st.columns(3)
+
+    with action1:
+
+        if st.button(
+            "Explore Clubs",
+            use_container_width=True,
+            key="home_explore_clubs"
+        ):
+
+            navigate("Clubs")
+
+    with action2:
+
+        if st.button(
+            "Explore Players",
+            use_container_width=True,
+            key="home_explore_players"
+        ):
+
+            navigate("Players")
+
+    with action3:
+
+        if st.button(
+            "AI Valuation",
+            use_container_width=True,
+            key="home_ai_valuation"
+        ):
+
+            navigate("Model")
+
+    # ========================================================
+    # LEAGUE OVERVIEW
+    # ========================================================
 
     st.markdown(
         '<div class="section-title">League Overview</div>',
@@ -1022,7 +1078,7 @@ def home_page():
 
     st.markdown(
         '<div class="section-subtitle">'
-        'Data collected from the 2024/25 Premier League season'
+        'Premier League player and club intelligence'
         '</div>',
         unsafe_allow_html=True
     )
@@ -1066,7 +1122,7 @@ def home_page():
                 </div>
 
                 <div class="kpi-small">
-                    Premier League clubs
+                    Clubs in dataset
                 </div>
 
             </div>
@@ -1117,8 +1173,9 @@ def home_page():
             """
         )
 
-
+    # ========================================================
     # MARKET LEADERS
+    # ========================================================
 
     st.markdown(
         '<div class="section-title">Market Leaders</div>',
@@ -1127,7 +1184,7 @@ def home_page():
 
     st.markdown(
         '<div class="section-subtitle">'
-        'Highest listed market values in the dataset'
+        'Players with the highest listed market values'
         '</div>',
         unsafe_allow_html=True
     )
@@ -1168,6 +1225,17 @@ def home_page():
                 </div>
                 """
 
+            age = (
+                int(row["age"])
+                if pd.notna(row["age"])
+                else "-"
+            )
+
+            position = row.get(
+                "position",
+                "Player"
+            )
+
             html(
                 f"""
                 <div class="player-card">
@@ -1189,12 +1257,7 @@ def home_page():
                         </div>
 
                         <div class="player-meta">
-                            {row.get('position', 'Player')}
-                            ·
-                            {int(row['age'])
-                            if pd.notna(row['age'])
-                            else '-'}
-                            years
+                            {position} · {age} years
                         </div>
 
                     </div>
@@ -1214,8 +1277,9 @@ def home_page():
                     selected_player=row["name"]
                 )
 
-
-    # CLUB EXPLORER
+    # ========================================================
+    # EXPLORE CLUBS
+    # ========================================================
 
     st.markdown(
         '<div class="section-title">Explore Clubs</div>',
@@ -1224,7 +1288,7 @@ def home_page():
 
     st.markdown(
         '<div class="section-subtitle">'
-        'Select a club to explore its squad'
+        'Explore squads, players and club analytics'
         '</div>',
         unsafe_allow_html=True
     )
@@ -1319,8 +1383,7 @@ def home_page():
 
                         <div class="club-meta">
                             {len(club_players)}
-                            players
-                            ·
+                            players ·
                             {money(club_value)}
                         </div>
 
@@ -1339,13 +1402,155 @@ def home_page():
                         selected_club=club
                     )
 
+    # ========================================================
+    # ANALYTICS LAB
+    # ========================================================
+
+    st.markdown(
+        '<div class="section-title">Analytics Lab</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="section-subtitle">'
+        'Turn football statistics into actionable insights'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    a1, a2, a3 = st.columns(3)
+
+    with a1:
+
+        html(
+            """
+            <div class="club-card">
+
+                <div class="club-name">
+                    AI Valuation
+                </div>
+
+                <div class="club-meta">
+                    Estimate player market values
+                    using the trained machine-learning model.
+                </div>
+
+            </div>
+            """
+        )
+
+        if st.button(
+            "Open Model",
+            key="home_analytics_model",
+            use_container_width=True
+        ):
+
+            navigate("Model")
+
+    with a2:
+
+        html(
+            """
+            <div class="club-card">
+
+                <div class="club-name">
+                    Player Analysis
+                </div>
+
+                <div class="club-meta">
+                    Compare player performance,
+                    appearances, goals and assists.
+                </div>
+
+            </div>
+            """
+        )
+
+        if st.button(
+            "Explore Players",
+            key="home_analytics_players",
+            use_container_width=True
+        ):
+
+            navigate("Players")
+
+    with a3:
+
+        html(
+            """
+            <div class="club-card">
+
+                <div class="club-name">
+                    Club Intelligence
+                </div>
+
+                <div class="club-meta">
+                    Explore squad size, market value
+                    and club-level player data.
+                </div>
+
+            </div>
+            """
+        )
+
+        if st.button(
+            "Explore Clubs",
+            key="home_analytics_clubs",
+            use_container_width=True
+        ):
+
+            navigate("Clubs")
+
+    # ========================================================
+    # FAN COMMUNITY
+    # ========================================================
+
+    st.markdown(
+        '<div class="section-title">Fan Community</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="section-subtitle">'
+        'Your future home for club discussions, matchday talk '
+        'and football analytics conversations'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    html(
+        """
+        <div class="hero">
+
+            <div class="hero-kicker">
+                COMING SOON
+            </div>
+
+            <h1>
+                Football is more than numbers.
+            </h1>
+
+            <p>
+                Choose your club, connect with fellow supporters,
+                discuss matches, transfers and analytics, and
+                build a football community around the data.
+            </p>
+
+        </div>
+        """
+    )
+
+    # ========================================================
+    # FOOTER
+    # ========================================================
 
     html(
         """
         <div class="footer">
             Premier League Analytics Lab ·
-            2024/25 Dataset ·
-            Machine Learning Football Analytics
+            Football Analytics ·
+            Machine Learning ·
+            Fan Community
         </div>
         """
     )
