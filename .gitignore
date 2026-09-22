@@ -4,3 +4,8 @@ __pycache__/
 data/transfermarkt.duckdb
 .streamlit/secrets.toml
 app_v1_backup.py
+data/community.db
+app_before_*.py
+home_v*.py
+home_v*.txt
+project_py_files.txt

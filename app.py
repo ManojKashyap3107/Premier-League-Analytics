@@ -1,4 +1,5 @@
 import streamlit as st
+import community_db
 import pandas as pd
 import numpy as np
 import joblib
@@ -209,6 +210,9 @@ if "selected_club" not in st.session_state:
 
 if "selected_player" not in st.session_state:
     st.session_state["selected_player"] = None
+
+if "community_posts" not in st.session_state:
+    st.session_state["community_posts"] = []
 
 
 # ============================================================
@@ -3162,461 +3166,99 @@ def club_page(club):
 
 def community_page():
 
-    st.markdown(
-        '<div class="section-title">Fan Community</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        '<div class="section-subtitle">'
-        'A place for Premier League fans to discuss clubs, matches, transfers and football analytics'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    # --------------------------------------------------------
-    # COMMUNITY HERO
-    # --------------------------------------------------------
-
     html(
         """
         <div style="
-            margin-top:18px;
-            padding:32px;
-            border-radius:24px;
+            margin-top:12px;
+            padding:38px;
+            border-radius:28px;
             background:
-                radial-gradient(
-                    circle at 85% 15%,
-                    rgba(80,150,255,0.18),
-                    transparent 35%
-                ),
-                linear-gradient(
-                    135deg,
-                    #111a2a,
-                    #0b1018
-                );
+                radial-gradient(circle at 85% 15%, rgba(75,90,255,0.22), transparent 35%),
+                linear-gradient(135deg, #111827, #080b12);
             border:1px solid rgba(255,255,255,0.08);
         ">
-
-            <div style="
-                color:#6fa8ff;
-                font-size:10px;
-                font-weight:950;
-                letter-spacing:2.5px;
-                text-transform:uppercase;
-            ">
-                PREMIER LEAGUE COMMUNITY
+            <div style="color:#7c8cff;font-size:10px;font-weight:950;letter-spacing:2.5px;">
+                FAN COMMUNITY
             </div>
-
-            <div style="
-                margin-top:10px;
-                color:#ffffff;
-                font-size:34px;
-                font-weight:950;
-                letter-spacing:-1.2px;
-            ">
-                Talk football. Share opinions.
+            <div style="margin-top:10px;color:#ffffff;font-size:40px;font-weight:950;letter-spacing:-1.5px;">
+                Premier League Community
             </div>
-
-            <div style="
-                margin-top:10px;
-                max-width:720px;
-                color:#8995a8;
-                font-size:14px;
-                line-height:1.7;
-            ">
-                Follow club discussions, debate transfers, react to matchdays,
-                share analytics and connect with other Premier League fans.
+            <div style="margin-top:10px;max-width:680px;color:#8b97a9;font-size:14px;line-height:1.7;">
+                A place for club discussions, matchday reactions, transfer talk, tactics and football analytics.
             </div>
-
         </div>
         """
     )
 
-    # --------------------------------------------------------
-    # COMMUNITY AREAS
-    # --------------------------------------------------------
+    st.markdown('<div class="section-title">Community Areas</div>', unsafe_allow_html=True)
 
-    st.markdown(
-        '<div class="section-title">Community Areas</div>',
-        unsafe_allow_html=True
-    )
+    areas = [
+        ("🔥", "Matchday", "Live reactions and post-match discussion."),
+        ("🔄", "Transfer Talk", "Rumours, signings and squad planning."),
+        ("⚽", "Player Discussion", "Form, performances and player debates."),
+        ("🧠", "Tactics", "Lineups, formations and tactical analysis."),
+        ("📊", "Analytics", "Football data, statistics and models."),
+        ("💬", "General", "Everything else football related."),
+    ]
 
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-
-        html(
-            """
-            <div style="
-                min-height:170px;
-                padding:22px;
-                border-radius:20px;
-                background:rgba(255,255,255,0.035);
-                border:1px solid rgba(255,255,255,0.07);
-            ">
-
-                <div style="font-size:28px;">
-                    🏟️
-                </div>
-
-                <div style="
-                    margin-top:12px;
-                    color:#ffffff;
-                    font-size:18px;
-                    font-weight:900;
-                ">
-                    Club Communities
-                </div>
-
-                <div style="
-                    margin-top:7px;
-                    color:#7f8b9e;
-                    font-size:12px;
-                    line-height:1.6;
-                ">
-                    Discuss your club, players, tactics,
-                    performances and season.
-                </div>
-
-            </div>
-            """
-        )
-
-    with c2:
-
-        html(
-            """
-            <div style="
-                min-height:170px;
-                padding:22px;
-                border-radius:20px;
-                background:rgba(255,255,255,0.035);
-                border:1px solid rgba(255,255,255,0.07);
-            ">
-
-                <div style="font-size:28px;">
-                    🔥
-                </div>
-
-                <div style="
-                    margin-top:12px;
-                    color:#ffffff;
-                    font-size:18px;
-                    font-weight:900;
-                ">
-                    Matchday
-                </div>
-
-                <div style="
-                    margin-top:7px;
-                    color:#7f8b9e;
-                    font-size:12px;
-                    line-height:1.6;
-                ">
-                    Reactions, lineups, tactics,
-                    key moments and post-match discussion.
-                </div>
-
-            </div>
-            """
-        )
-
-    with c3:
-
-        html(
-            """
-            <div style="
-                min-height:170px;
-                padding:22px;
-                border-radius:20px;
-                background:rgba(255,255,255,0.035);
-                border:1px solid rgba(255,255,255,0.07);
-            ">
-
-                <div style="font-size:28px;">
-                    🔄
-                </div>
-
-                <div style="
-                    margin-top:12px;
-                    color:#ffffff;
-                    font-size:18px;
-                    font-weight:900;
-                ">
-                    Transfer Talk
-                </div>
-
-                <div style="
-                    margin-top:7px;
-                    color:#7f8b9e;
-                    font-size:12px;
-                    line-height:1.6;
-                ">
-                    Transfer rumours, confirmed moves,
-                    squad planning and player discussions.
-                </div>
-
-            </div>
-            """
-        )
-
-    c4, c5, c6 = st.columns(3)
-
-    with c4:
-
-        html(
-            """
-            <div style="
-                min-height:170px;
-                padding:22px;
-                border-radius:20px;
-                background:rgba(255,255,255,0.035);
-                border:1px solid rgba(255,255,255,0.07);
-            ">
-
-                <div style="font-size:28px;">
-                    📊
-                </div>
-
-                <div style="
-                    margin-top:12px;
-                    color:#ffffff;
-                    font-size:18px;
-                    font-weight:900;
-                ">
-                    Analytics
-                </div>
-
-                <div style="
-                    margin-top:7px;
-                    color:#7f8b9e;
-                    font-size:12px;
-                    line-height:1.6;
-                ">
-                    Share stats, data discoveries,
-                    predictions and analytical debates.
-                </div>
-
-            </div>
-            """
-        )
-
-    with c5:
-
-        html(
-            """
-            <div style="
-                min-height:170px;
-                padding:22px;
-                border-radius:20px;
-                background:rgba(255,255,255,0.035);
-                border:1px solid rgba(255,255,255,0.07);
-            ">
-
-                <div style="font-size:28px;">
-                    🗳️
-                </div>
-
-                <div style="
-                    margin-top:12px;
-                    color:#ffffff;
-                    font-size:18px;
-                    font-weight:900;
-                ">
-                    Polls & Predictions
-                </div>
-
-                <div style="
-                    margin-top:7px;
-                    color:#7f8b9e;
-                    font-size:12px;
-                    line-height:1.6;
-                ">
-                    Vote on football questions and
-                    make your matchday predictions.
-                </div>
-
-            </div>
-            """
-        )
-
-    with c6:
-
-        html(
-            """
-            <div style="
-                min-height:170px;
-                padding:22px;
-                border-radius:20px;
-                background:rgba(255,255,255,0.035);
-                border:1px solid rgba(255,255,255,0.07);
-            ">
-
-                <div style="font-size:28px;">
-                    💬
-                </div>
-
-                <div style="
-                    margin-top:12px;
-                    color:#ffffff;
-                    font-size:18px;
-                    font-weight:900;
-                ">
-                    General Discussion
-                </div>
-
-                <div style="
-                    margin-top:7px;
-                    color:#7f8b9e;
-                    font-size:12px;
-                    line-height:1.6;
-                ">
-                    Football opinions, debates,
-                    stories and everything Premier League.
-                </div>
-
-            </div>
-            """
-        )
-
-    # --------------------------------------------------------
-    # CLUB COMMUNITIES
-    # --------------------------------------------------------
-
-    st.markdown(
-        '<div class="section-title">Club Communities</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        '<div class="section-subtitle">'
-        'Choose a club to enter its future discussion hub'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    community_clubs = [
-    club
-    for club in CLUBS.keys()
-    if club in df["club"].astype(str).unique()
-]
-
-    community_clubs = sorted(
-        community_clubs,
-        key=lambda club: club_info(club).get(
-            "short_name",
-            club
-        )
-    )
-
-    club_columns = st.columns(4)
-
-    for index, club in enumerate(community_clubs):
-
-        info = club_info(club)
-
-        with club_columns[index % 4]:
-
+    area_columns = st.columns(3)
+    for index, (icon, title, description) in enumerate(areas):
+        with area_columns[index % 3]:
             html(
                 f"""
-                <div style="
-                    margin-top:14px;
-                    padding:18px;
-                    min-height:145px;
-                    border-radius:18px;
-                    background:
-                        linear-gradient(
-                            145deg,
-                            {info.get("primary", "#42556a")}22,
-                            rgba(255,255,255,0.025)
-                        );
-                    border:1px solid
-                        {info.get("primary", "#42556a")}45;
-                ">
-
-                    <div style="
-                        color:{info.get("primary", "#ffffff")};
-                        font-size:10px;
-                        font-weight:950;
-                        letter-spacing:1.5px;
-                    ">
-                        {info.get("code", "")}
-                    </div>
-
-                    <div style="
-                        margin-top:8px;
-                        color:#ffffff;
-                        font-size:16px;
-                        font-weight:900;
-                    ">
-                        {club}
-                    </div>
-
-                    <div style="
-                        margin-top:5px;
-                        color:#7f8b9e;
-                        font-size:11px;
-                    ">
-                        {info.get("nickname", "Club community")}
-                    </div>
-
+                <div style="min-height:145px;margin-top:12px;padding:20px;border-radius:18px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);">
+                    <div style="font-size:25px;">{icon}</div>
+                    <div style="margin-top:10px;color:#ffffff;font-size:16px;font-weight:900;">{title}</div>
+                    <div style="margin-top:7px;color:#7f8b9e;font-size:11px;line-height:1.6;">{description}</div>
                 </div>
                 """
             )
 
-            if st.button(
-                "Open Community",
-                key=f"community_{club}",
-                use_container_width=True
-            ):
-
-                st.info(
-                    "Club discussion hubs will be enabled "
-                    "in the next Community phase."
-                )
-
-    # --------------------------------------------------------
-    # FUTURE FEATURES
-    # --------------------------------------------------------
-
+    st.markdown('<div class="section-title">Club Communities</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="section-title">Community Roadmap</div>',
-        unsafe_allow_html=True
+        '<div style="color:#7f8b9e;font-size:13px;margin-bottom:12px;">Choose a club to enter its community hub.</div>',
+        unsafe_allow_html=True,
     )
 
+    community_clubs = list(CLUBS.keys())
+    club_columns = st.columns(4)
+
+    for index, club in enumerate(community_clubs):
+        info = club_info(club)
+        primary = info.get("primary", "#42556a")
+        nickname = info.get("nickname", "")
+        code = info.get("code", "")
+
+        with club_columns[index % 4]:
+            html(
+                f"""
+                <div style="margin-top:12px;min-height:125px;padding:18px;border-radius:18px;background:linear-gradient(145deg,{primary}18,rgba(255,255,255,0.025));border:1px solid {primary}55;">
+                    <div style="color:{primary};font-size:10px;font-weight:950;letter-spacing:2px;">{code}</div>
+                    <div style="margin-top:9px;color:#ffffff;font-size:16px;font-weight:900;">{club}</div>
+                    <div style="margin-top:6px;color:#7f8b9e;font-size:11px;">{nickname}</div>
+                </div>
+                """
+            )
+            if st.button(
+                "Open Community",
+                key=f"club_community_open_{index}",
+                use_container_width=True,
+            ):
+                navigate("ClubCommunity", selected_community_club=club)
+
+    st.markdown('<div class="section-title">Community Roadmap</div>', unsafe_allow_html=True)
     html(
         """
-        <div style="
-            padding:24px;
-            border-radius:20px;
-            background:rgba(255,255,255,0.025);
-            border:1px solid rgba(255,255,255,0.06);
-        ">
-
-            <div style="
-                color:#ffffff;
-                font-size:18px;
-                font-weight:900;
-            ">
-                Building the full fan experience
+        <div style="padding:22px;border-radius:20px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);">
+            <div style="color:#ffffff;font-size:17px;font-weight:900;">Community foundation</div>
+            <div style="margin-top:10px;color:#7f8b9e;font-size:12px;line-height:1.8;">
+                Club hubs and persistent discussions are now live. Future versions can add accounts, profiles, replies, polls, predictions, reputation and moderation.
             </div>
-
-            <div style="
-                margin-top:12px;
-                color:#7f8b9e;
-                font-size:13px;
-                line-height:1.8;
-            ">
-                The current Community page is the foundation.
-                Future versions will introduce user accounts,
-                profiles, posts, replies, likes, polls,
-                predictions, reputation and moderation.
-            </div>
-
         </div>
         """
     )
+
+
 # ============================================================
 # CLUB COMMUNITY HUB
 # ============================================================
@@ -3625,287 +3267,155 @@ def club_community_page(club_name):
 
     if not club_name or club_name not in CLUBS:
         st.error("Club community could not be found.")
-        if st.button("Back to Community"):
+        if st.button("← Back to Community"):
             navigate("Community")
         return
 
     info = club_info(club_name)
-
     primary = info.get("primary", "#42556a")
-    secondary = info.get("secondary", "#FFFFFF")
     nickname = info.get("nickname", "")
     code = info.get("code", "")
-
-    # --------------------------------------------------------
-    # BACK
-    # --------------------------------------------------------
 
     if st.button("← Back to Community"):
         navigate("Community")
 
-    # --------------------------------------------------------
-    # CLUB HERO
-    # --------------------------------------------------------
-
     html(
         f"""
-        <div style="
-            margin-top:12px;
-            padding:32px;
-            border-radius:26px;
-
-            background:
-                radial-gradient(
-                    circle at 85% 15%,
-                    {primary}55,
-                    transparent 38%
-                ),
-                linear-gradient(
-                    135deg,
-                    #101722,
-                    #090d14
-                );
-
-            border:1px solid {primary}55;
-
-            box-shadow:
-                0 20px 60px rgba(0,0,0,0.25);
-        ">
-
-            <div style="
-                color:{primary};
-                font-size:10px;
-                font-weight:950;
-                letter-spacing:2.5px;
-                text-transform:uppercase;
-            ">
-                {code} • FAN COMMUNITY
-            </div>
-
-            <div style="
-                margin-top:9px;
-                color:#ffffff;
-                font-size:38px;
-                font-weight:950;
-                letter-spacing:-1.5px;
-            ">
-                {club_name}
-            </div>
-
-            <div style="
-                margin-top:6px;
-                color:#8b97a9;
-                font-size:14px;
-            ">
-                {nickname}
-            </div>
-
-            <div style="
-                margin-top:18px;
-                display:inline-block;
-                padding:7px 12px;
-                border-radius:999px;
-                background:{primary}22;
-                border:1px solid {primary}45;
-                color:#ffffff;
-                font-size:11px;
-                font-weight:800;
-            ">
-                Community Hub
-            </div>
-
+        <div style="margin-top:12px;padding:34px;border-radius:28px;background:radial-gradient(circle at 85% 15%,{primary}55,transparent 38%),linear-gradient(135deg,#111827,#080b12);border:1px solid {primary}55;">
+            <div style="color:{primary};font-size:10px;font-weight:950;letter-spacing:2.5px;">{code} • FAN COMMUNITY</div>
+            <div style="margin-top:10px;color:#ffffff;font-size:38px;font-weight:950;">{club_name}</div>
+            <div style="margin-top:6px;color:#8b97a9;font-size:14px;">{nickname}</div>
+            <div style="display:inline-block;margin-top:18px;padding:7px 12px;border-radius:999px;background:{primary}22;border:1px solid {primary}45;color:#ffffff;font-size:11px;font-weight:800;">Club Community</div>
         </div>
         """
     )
 
-    # --------------------------------------------------------
-    # DISCUSSION CATEGORIES
-    # --------------------------------------------------------
+    st.markdown('<div class="section-title">Start a Discussion</div>', unsafe_allow_html=True)
 
-    st.markdown(
-        '<div class="section-title">Discussion Areas</div>',
-        unsafe_allow_html=True
-    )
-
-    categories = [
-        (
-            "🔥",
-            "Matchday",
-            "Live reactions, post-match discussion and key moments."
-        ),
-        (
-            "🔄",
-            "Transfer Talk",
-            "Rumours, confirmed moves and squad planning."
-        ),
-        (
-            "⚽",
-            "Player Discussion",
-            "Talk about performances, form and individual players."
-        ),
-        (
-            "🧠",
-            "Tactics",
-            "Lineups, formations, systems and tactical debates."
-        ),
-        (
-            "📊",
-            "Analytics",
-            "Stats, data analysis and football numbers."
-        ),
-        (
-            "💬",
-            "General",
-            "Everything else related to the club."
+    with st.form(f"create_post_{club_name}", clear_on_submit=True):
+        category = st.selectbox(
+            "Category",
+            ["Matchday", "Transfer Talk", "Player Discussion", "Tactics", "Analytics", "General"],
+            key=f"category_{club_name}",
         )
-    ]
+        post_text = st.text_area(
+            "Your discussion",
+            placeholder=f"Share something about {club_name}...",
+            height=120,
+            key=f"post_text_{club_name}",
+        )
+        publish = st.form_submit_button("✍️ Publish Discussion", use_container_width=True)
 
-    category_columns = st.columns(3)
+        if publish:
+            clean_text = post_text.strip()
+            if not clean_text:
+                st.warning("Please write something before publishing.")
+            else:
+                community_db.create_post(
+                    club=club_name,
+                    category=category,
+                    text=clean_text,
+                )
+                st.success("Discussion published successfully.")
+                st.rerun()
 
-    for index, category in enumerate(categories):
+    st.markdown('<div class="section-title">Community Feed</div>', unsafe_allow_html=True)
 
-        icon, title, description = category
+    # Persistent feed: every refresh reads directly from SQLite.
+    club_posts = community_db.get_posts(club_name)
 
-        with category_columns[index % 3]:
+    if not club_posts:
+        html(
+            """
+            <div style="padding:28px;border-radius:20px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);text-align:center;">
+                <div style="color:#ffffff;font-size:18px;font-weight:900;">No discussions yet</div>
+                <div style="margin-top:8px;color:#7f8b9e;font-size:12px;">Start the first discussion for this club.</div>
+            </div>
+            """
+        )
+    else:
+        for post_index, post in enumerate(club_posts):
+            post_id = post["id"]
+            comment_count = len(community_db.get_comments(post_id))
 
             html(
                 f"""
-                <div style="
-                    margin-top:12px;
-                    min-height:150px;
-                    padding:20px;
-                    border-radius:18px;
-
-                    background:
-                        linear-gradient(
-                            145deg,
-                            {primary}16,
-                            rgba(255,255,255,0.025)
-                        );
-
-                    border:1px solid
-                        rgba(255,255,255,0.07);
-                ">
-
-                    <div style="font-size:25px;">
-                        {icon}
-                    </div>
-
-                    <div style="
-                        margin-top:10px;
-                        color:#ffffff;
-                        font-size:17px;
-                        font-weight:900;
-                    ">
-                        {title}
-                    </div>
-
-                    <div style="
-                        margin-top:7px;
-                        color:#7f8b9e;
-                        font-size:11px;
-                        line-height:1.6;
-                    ">
-                        {description}
-                    </div>
-
+                <div style="margin-top:14px;padding:22px;border-radius:20px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);">
+                    <div style="color:{primary};font-size:10px;font-weight:950;letter-spacing:1.8px;text-transform:uppercase;">{post.get("category", "General")}</div>
+                    <div style="margin-top:10px;color:#ffffff;font-size:15px;line-height:1.7;">{post.get("text", "")}</div>
+                    <div style="margin-top:12px;color:#667085;font-size:11px;">Discussion #{post_id}</div>
                 </div>
                 """
             )
 
-            if st.button(
-                f"Open {title}",
-                key=f"{club_name}_{title}_community",
-                use_container_width=True
-            ):
+            like_col, comment_col = st.columns(2)
 
-                st.info(
-                    f"{title} discussions for {club_name} "
-                    "will be enabled when the persistent community "
-                    "system is added."
-                )
+            with like_col:
+                if st.button(
+                    f"❤️ {post.get('likes', 0)}",
+                    key=f"like_{club_name}_{post_id}",
+                    use_container_width=True,
+                ):
+                    community_db.like_post(post_id)
+                    st.rerun()
 
-    # --------------------------------------------------------
-    # COMMUNITY ACTIONS
-    # --------------------------------------------------------
+            with comment_col:
+                show_comments_key = f"show_comments_{post_id}"
+                if st.button(
+                    f"💬 {comment_count}",
+                    key=f"comments_toggle_{club_name}_{post_id}",
+                    use_container_width=True,
+                ):
+                    st.session_state[show_comments_key] = not st.session_state.get(
+                        show_comments_key,
+                        False,
+                    )
+                    st.rerun()
 
-    st.markdown(
-        '<div class="section-title">Community Actions</div>',
-        unsafe_allow_html=True
-    )
+            if st.session_state.get(show_comments_key, False):
+                comments = community_db.get_comments(post_id)
 
-    a1, a2 = st.columns(2)
+                if comments:
+                    for comment in comments:
+                        html(
+                            f"""
+                            <div style="margin:8px 0 8px 20px;padding:12px 15px;border-left:2px solid {primary};background:rgba(255,255,255,0.02);border-radius:0 12px 12px 0;color:#c4ccd8;font-size:12px;line-height:1.6;">
+                                {comment["text"]}
+                            </div>
+                            """
+                        )
+                else:
+                    st.markdown(
+                        '<div style="margin:10px 0 10px 20px;color:#687386;font-size:12px;">No comments yet.</div>',
+                        unsafe_allow_html=True,
+                    )
 
-    with a1:
+                with st.form(
+                    f"comment_form_{club_name}_{post_id}",
+                    clear_on_submit=True,
+                ):
+                    comment_text = st.text_input(
+                        "Add a comment",
+                        key=f"comment_text_{club_name}_{post_id}",
+                    )
+                    submit_comment = st.form_submit_button("Reply", use_container_width=True)
 
-        if st.button(
-            "✍️ Start a Discussion",
-            use_container_width=True
-        ):
-
-            st.info(
-                "Post creation will be enabled in the next "
-                "community phase."
-            )
-
-    with a2:
-
-        if st.button(
-            "🗳️ Create a Poll",
-            use_container_width=True
-        ):
-
-            st.info(
-                "Community polls will be enabled in the "
-                "next community phase."
-            )
-
-    # --------------------------------------------------------
-    # CURRENT COMMUNITY STATUS
-    # --------------------------------------------------------
+                    if submit_comment:
+                        clean_comment = comment_text.strip()
+                        if not clean_comment:
+                            st.warning("Please write a comment before replying.")
+                        else:
+                            community_db.create_comment(post_id, clean_comment)
+                            st.rerun()
 
     html(
         f"""
-        <div style="
-            margin-top:18px;
-            padding:22px;
-            border-radius:20px;
-
-            background:rgba(255,255,255,0.025);
-
-            border:1px solid rgba(255,255,255,0.06);
-        ">
-
-            <div style="
-                color:{primary};
-                font-size:10px;
-                font-weight:950;
-                letter-spacing:2px;
-                text-transform:uppercase;
-            ">
-                COMMUNITY STATUS
+        <div style="margin-top:24px;padding:20px;border-radius:20px;background:{primary}12;border:1px solid {primary}35;">
+            <div style="color:{primary};font-size:10px;font-weight:950;letter-spacing:2px;">COMMUNITY FOUNDATION</div>
+            <div style="margin-top:8px;color:#ffffff;font-size:16px;font-weight:900;">Persistent club discussions are live</div>
+            <div style="margin-top:7px;color:#7f8b9e;font-size:12px;line-height:1.7;">
+                Posts, likes and comments are stored in the local SQLite community database and remain available after app refreshes.
             </div>
-
-            <div style="
-                margin-top:8px;
-                color:#ffffff;
-                font-size:18px;
-                font-weight:900;
-            ">
-                Community foundation is ready
-            </div>
-
-            <div style="
-                margin-top:8px;
-                color:#7f8b9e;
-                font-size:12px;
-                line-height:1.7;
-            ">
-                This hub provides the structure for club discussions.
-                Persistent posts, replies, likes, user profiles,
-                polls and moderation will be added in the next phase.
-            </div>
-
         </div>
         """
     )
